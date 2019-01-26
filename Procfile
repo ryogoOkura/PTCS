@@ -1,1 +1,1 @@
-web: gunicorn PTCS:app --log-file -
+web: gunicorn ptcg-solitaire:app --log-file -
