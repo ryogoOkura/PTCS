@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="form">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <p class="lead">
+          {% if user_name %}
+            こんにちは {{ user_name }} さん
+          {% else %}
+            名前を入力してください
+          {% endif %}
+        </p>
+        <form action="/post" method="post" class="form-inline">
+          <label for="user_name">名前</label>
+          <input type="text" class="form-control" id="user_name" name="user_name" placeholder="Name">
+          <button type="submit" class="btn btn-default">送信する</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,5 @@
+flask
+flask_login
+selenium
+bs4
+gunicorn

@@ -1,0 +1,100 @@
+{% extends "layout.html" %}
+{% block content %}
+<script>
+  let indexedDB;
+  const DBName='deckDatabase';
+  let dbVersion=10;
+  let db;
+  const initialDB=()=>{
+    let openReq=window.indexedDB.open(DBName,dbVersion);
+    openReq.onerror=event=>alert('ERROR!');
+    openReq.onsuccess=event=>{
+      db=event.target.result;
+      createList();
+    };
+    openReq.onupgradeneeded=event=>{
+      db=event.target.result;
+      if(db.objectStoreNames.contains(DBName)) db.deleteObjectStore(DBName);
+      let store=db.createObjectStore(DBName, {keyPath:'id', autoIncrement:true});
+      store.createIndex('name','name',{unique:true});
+    };
+  };
+  const createList=()=>{
+    let div=document.getElementById('msg');
+    div.innerHTML='<p><b>DATA LIST</b></p>\n<ons-row><ons-col width="10%"><div class="fullright">Number:</div></ons-col><ons-col width="2%"></ons-col><ons-col><b>Deck Name</b></ons-col></ons-row>';
+    const transaction=db.transaction([DBName],'readonly');
+    const store=transaction.objectStore(DBName);
+    const range=IDBKeyRange.lowerBound(0);
+    let readReq=store.openCursor(range);
+    readReq.onsuccess=event=>{
+      let cur=event.target.result;
+      if(!cur) return;
+      let res=document.createElement('p');
+      res.innerHTML="<ons-row><ons-col width='10%'><div class='fullright'>"+cur.value.id+":</div></ons-col><ons-col width='2%'></ons-col><ons-col><b>" +cur.value.name +'</b></ons-col></ons-row>';
+      div.appendChild(res);
+      cur.continue();
+    };
+    readReq.onerror=event=>alert('ERROR: '+event);
+  }
+  const addData=(deckName=0)=>{
+    if(!db) return;
+    if(deckName==0) deckName=document.getElementById('deckname').value;
+    if(!deckName) return;
+    let data=document.getElementById('deck');
+    let deck=data.getElementsByTagName('ons-col');
+    let name=[],copy=[],src=[],num=0;
+    for(let deckpart of deck){
+      let cn=(deckpart.getAttribute('class')||deckpart.getAttribute('className'));
+      if(cn=='name') name.push(deckpart.innerHTML);
+      else if(cn=='src') src.push(deckpart.innerHTML);
+      else if(cn=='copy'){
+        copy.push(deckpart.innerHTML);
+        num+=1;
+      }
+    }
+    let list=[];
+    for(let i=1;i<num;i++){
+      list.push({name:name[i],copy:copy[i].match(/\d+/)*1,src:'"'+src[i]+'"'});
+    }
+    const data2={name:deckName, data:list};
+    const transaction=db.transaction([DBName],'readwrite');
+    let store=transaction.objectStore(DBName);
+    store.put(data2);
+    createList();
+    document.getElementById('deckname').value='';
+  };
+  window.onload=event=>{
+    initialDB();
+  };
+</script>
+<div class="form">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <p class="lead">
+          デッキIDを入力してください<br/>
+          <form action="/scraping" method="post" class="form-inline">
+            <label for="deckID">デッキID</label>
+            <input type="text" class="form-control" id="deckID" name="deckID" placeholder="ID">
+            <button type="submit" class="btn btn-default">検索する</button>
+          </form>
+        </p>
+        <div id='msg'>ここにデッキリストが出る</div>
+        {% if data_list %}
+        <p class="lead">
+          デッキ名を入力してください<br/>
+          <label for='deckname'>デッキ名</label>
+          <input type='text' class='form-control' id='deckname'/>
+          <button type='button' onclick='addData()' class="btn btn-default">登録する</button>
+        </p>
+        <p><div id='deck'>
+        {% for data in data_list %}
+        <ons-row><ons-col width='20%' class='name'>{{data[0]}}</ons-col><ons-col width='5%' class='copy'>{{data[1]}}</ons-col><ons-col class='src'>{{data[2]}}</ons-col></ons-row>
+        {% endfor %}
+        </div></p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

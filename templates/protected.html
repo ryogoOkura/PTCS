@@ -1,0 +1,341 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PTC Solitaire</title>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css";; rel="stylesheet">
+  <!--[if lt IE 9]>
+       <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>;;
+       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>;;
+  <![endif]-->
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="Content-Security-Policy" content="default-src * data: gap: https://ssl.gstatic.com; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
+
+  <!-- <script src="{{url_for('static', filename='components/loader.js')}}"></script> -->
+  <script src="{{url_for('static', filename='onsenui/js/onsenui.min.js')}}"></script>
+  <!-- <link rel='stylesheet' href="{{url_for('static', filename='components/loader.css')}}"> -->
+  <link rel='stylesheet' href="{{url_for('static', filename='onsenui/css/onsenui.css')}}">
+  <link rel='stylesheet' href="{{url_for('static', filename='onsenui/css/onsen-css-components.css')}}">
+  <link rel='stylesheet' href="{{url_for('static', filename='style.css')}}">
+
+  <script src="{{url_for('static',filename='data.js')}}"></script>
+  <script src="{{url_for('static',filename='main.js')}}"></script>
+  <script>
+  document.addEventListener('init', event=>{
+    let page=event.target;
+    if(page.id=='player1_home'){
+      initialDB();
+    }
+    if(page.id=='player2_home'){
+      let button=document.getElementsByTagName('ons-button');
+      // alert(button.length);
+      for(let i=0,imax=button.length; i<imax; i++){
+        button[i].addEventListener('click',()=>{
+          const bID=button[i].id;
+          nowButton=bID;
+          if(bID.match(/deck/)){
+            deckOption.show(); openList(nowButton,0);
+          }else if(bID.match(/prize/)){
+            prizeOption.show(); openList(nowButton,0);
+          }else{
+            // if(bID.match(/stadium/))stadiumOption.show();
+            if(bID.match(/battlefield/)) battlefieldOption.show();
+            if(bID.match(/bench/)) benchOption.show();
+            openList();
+          }
+          // alert(nowButton);
+        });
+      }
+    }
+    if(page.id=='cardlist_home'){
+      document.getElementById('myfile').addEventListener('change', e=>initialFile(e));
+      createList();
+    }
+  });
+  document.addEventListener('show', event=>{
+    let page=event.target;
+    if(page.id=='player1_home'){
+      nowButton='hand_player1';
+      openList('hand_player1');
+    }
+    if(page.id=='player2_home'){
+      nowButton='hand_player2';
+      openList('hand_player2');
+    }
+  });
+  </script>
+</head>
+<body>
+  <ons-tabbar position="auto">
+    <ons-tab page="player1.html" icon='user' label='Player 1' active='true'></ons-tab>
+    <ons-tab page="player2.html" icon='user' label='Player 2'></ons-tab>
+    <ons-tab page='cardlist.html' icon='database' label='Card List'></ons-tab>
+  </ons-tabbar>
+
+  <ons-template id='player1.html'>
+    <ons-page id='player1_home'>
+      <ons-toolbar>
+        <div class='left'><a href="{{url_for('logout')}}">logout</a></div>
+        <div class='center'>Player 1</div>
+      </ons-toolbar>
+      <section style='padding:8px' id='field'>
+        <ons-row>
+          <ons-col width='20%'><ons-button id='stadium_player1' modifier='light' class='field'></ons-button></ons-col>
+          <ons-col width='20%'></ons-col>
+          <ons-col width='20%'><ons-button id='battlefield_player1' modifier='light' class='field'>DMG 0</ons-button></ons-col>
+          <ons-col width='20%'></ons-col>
+          <ons-col width='20%'></ons-col>
+        </ons-row>
+        <ons-row style='height:8px'></ons-row>
+        <ons-row>
+          <ons-col width='20%'><ons-button id='bench1_player1' modifier='light' class='field'>DMG 0</ons-button></ons-col>
+          <ons-col width='20%'><ons-button id='bench2_player1' modifier='light' class='field'>DMG 0</ons-button></ons-col>
+          <ons-col width='20%'><ons-button id='bench3_player1' modifier='light' class='field'>DMG 0</ons-button></ons-col>
+          <ons-col width='20%'><ons-button id='bench4_player1' modifier='light' class='field'>DMG 0</ons-button></ons-col>
+          <ons-col width='20%'><ons-button id='bench5_player1' modifier='light' class='field'>DMG 0</ons-button></ons-col>
+        </ons-row>
+      </section>
+      <section style='padding:8px'>
+        <ons-row>
+          <ons-col width='32%'><ons-button id='deck_player1' modifier='outline' class='fullcenter'>Deck 0</ons-button></ons-col>
+          <ons-col width='2%'></ons-col>
+          <ons-col width='32%'><ons-button id='hand_player1' modifier='outline' class='fullcenter'>Hand 0</ons-button></ons-col>
+          <ons-col width='2%'></ons-col>
+          <ons-col><ons-button id='prize_player1' modifier='outline' class='fullcenter'>Prize 0</ons-button></ons-col>
+        </ons-row>
+        <ons-row style='height:8px'></ons-row>
+        <ons-row>
+          <ons-col width='49%'><ons-button id='discardpile_player1' modifier='outline' class='fullcenter'>Discard Pile 0</ons-button></ons-col>
+          <ons-col width='2%'></ons-col>
+          <ons-col><ons-button id='lostzone_player1' modifier='outline' class='fullcenter'>Lost Zone 0</ons-button></ons-col>
+        </ons-row>
+      </section>
+      <section style='padding:8px'>
+        <label for='deckname_player1'>Deck Name</label>
+        <input type='text' class='text-input--underbar' id='deckname_player1'>
+        <ons-row style='height:8px'></ons-row>
+        <ons-row>
+          <ons-col width='49%'><ons-button id='selectDeck_player1' onclick='selectDeck(1)' class='fullcenter' modifier='cta'>Select Deck</ons-button></ons-col>
+          <ons-col width='2%'></ons-col>
+          <ons-col><ons-button id='setDeck_player1' onclick='setDeck(1)' class='fullcenter' modifier='cta'>Set Deck</ons-button></ons-col>
+        </ons-row>
+        <div id='msg_player1'>non selected</div>
+        <img id='img_player1' style='width:100%' />
+      </section>
+    </ons-page>
+  </ons-template>
+
+  <ons-template id='player2.html'>
+    <ons-page id='player2_home'>
+      <ons-toolbar><div class='center'>Player 2</div></ons-toolbar>
+      <section style='padding:8px' id='field'>
+        <ons-row>
+          <ons-col width='20%'><ons-button id='stadium_player2' modifier='light' class='field'></ons-button></ons-col>
+          <ons-col width='20%'></ons-col>
+          <ons-col width='20%'><ons-button id='battlefield_player2' modifier='light' class='field'>DMG 0</ons-button></ons-col>
+          <ons-col width='20%'></ons-col>
+          <ons-col width='20%'></ons-col>
+        </ons-row>
+        <ons-row style='height:8px'></ons-row>
+        <ons-row>
+          <ons-col width='20%'><ons-button id='bench1_player2' modifier='light' class='field'>DMG 0</ons-button></ons-col>
+          <ons-col width='20%'><ons-button id='bench2_player2' modifier='light' class='field'>DMG 0</ons-button></ons-col>
+          <ons-col width='20%'><ons-button id='bench3_player2' modifier='light' class='field'>DMG 0</ons-button></ons-col>
+          <ons-col width='20%'><ons-button id='bench4_player2' modifier='light' class='field'>DMG 0</ons-button></ons-col>
+          <ons-col width='20%'><ons-button id='bench5_player2' modifier='light' class='field'>DMG 0</ons-button></ons-col>
+        </ons-row>
+      </section>
+      <section style='padding:8px'>
+        <ons-row>
+          <ons-col width='32%'><ons-button id='deck_player2' modifier='outline' class='fullcenter'>Deck 0</ons-button></ons-col>
+          <ons-col width='2%'></ons-col>
+          <ons-col width='32%'><ons-button id='hand_player2' modifier='outline' class='fullcenter'>Hand 0</ons-button></ons-col>
+          <ons-col width='2%'></ons-col>
+          <ons-col><ons-button id='prize_player2' modifier='outline' class='fullcenter'>Prize 0</ons-button></ons-col>
+        </ons-row>
+        <ons-row style='height:8px'></ons-row>
+        <ons-row>
+          <ons-col width='49%'><ons-button id='discardpile_player2' modifier='outline' class='fullcenter'>Discard Pile 0</ons-button></ons-col>
+          <ons-col width='2%'></ons-col>
+          <ons-col><ons-button id='lostzone_player2' modifier='outline' class='fullcenter'>Lost Zone 0</ons-button></ons-col>
+        </ons-row>
+      </section>
+      <section style='padding:8px'>
+        <label for='deckname_player2'>Deck Name</label>
+        <input type='text' class='text-input--underbar' id='deckname_player2' >
+        <ons-row style='height:8px'></ons-row>
+        <ons-row>
+          <ons-col width='49%'><ons-button id='selectDeck_player2' onclick='selectDeck(2)' class='fullcenter' modifier='cta'>Select Deck</ons-button></ons-col>
+          <ons-col width='2%'></ons-col>
+          <ons-col><ons-button id='setDeck_player2' onclick='setDeck(2)' class='fullcenter' modifier='cta'>Set Deck</ons-button></ons-col>
+        </ons-row>
+        <div id='msg_player2'>non selected</div>
+        <img id='img_player2' style='width:100%' />
+      </section>
+    </ons-page>
+  </ons-template>
+
+  <ons-template id='cardlist.html'>
+    <ons-page id='cardlist_home'>
+      <ons-toolbar>
+        <div class='center'>Deck Data</div>
+      </ons-toolbar>
+      <section style='padding:8px'>
+        <input id="myfile" type="file" />
+      </section>
+      <section style='padding:8px'>
+        <ons-row>
+          <ons-col width='32%'>
+            <label for='deckNum'>Deck No.</label>
+            <input type='text' class='fullcenter text-input--underbar' id='decknum'/>
+          </ons-col>
+          <ons-col width='2%'></ons-col>
+          <ons-col width='66%'>
+            <label for='deckname'>Deck Name</label>
+            <input type='text' class='fullcenter text-input--underbar' id='deckname'/>
+          </ons-col>
+        </ons-row>
+      </section>
+      <section style='padding:8px'>
+        <ons-row>
+          <ons-col width='32%'><ons-button class='fullcenter' onclick='addData()'>Add Deck</ons-button></ons-col>
+          <ons-col width='2%'></ons-col>
+          <ons-col width='32%'><ons-button class='fullcenter' onclick='findData()'>Find Deck</ons-button></ons-col>
+          <ons-col width='2%'></ons-col>
+          <ons-col width='32%'><ons-button class='fullcenter' onclick='createList()'>List</ons-button></ons-col>
+        </ons-row>
+        <ons-row style='height:8px'></ons-row>
+        <ons-row>
+          <ons-col width='32%'><ons-button class='fullcenter' onclick='getCSV("./static/sampleDeck/ゼラオラサンダー.csv","ゼラオラサンダー"); getCSV("./static/sampleDeck/マグマッグ.csv","マグマッグ"); getCSV("./static/sampleDeck/超バレット.csv","超バレット"); getCSV("./static/sampleDeck/ゼラレック.csv","ゼラレック"); getCSV("./static/sampleDeck/バンギガオガエン.csv","バンギガオガエン"); getCSV("./static/sampleDeck/ズガアゴ.csv","ズガアゴ");　getCSV("./static/sampleDeck/ソルガレオ.csv","ソルガレオ");'>Add Example</ons-button></ons-col>
+          <ons-col width='2%'></ons-col>
+          <ons-col width='32%'><ons-button class='fullcenter' onclick='deleteData()'>Delete Deck</ons-button></ons-col>
+          <ons-col width='2%'></ons-col>
+          <ons-col width='32%'><ons-button class='fullcenter' onclick='clearData()' modifier='cta'>Delete All</ons-button></ons-col>
+          <!-- <ons-col width='49%'><ons-button class='fullcenter' onclick='deleteData()'>Delete Deck</ons-button></ons-col>
+          <ons-col width='2%'></ons-col>
+          <ons-col width='49%'><ons-button class='fullcenter' onclick='clearData()' modifier='cta'>Delete All</ons-button></ons-col> -->
+        </ons-row>
+      </section>
+      <section style='padding:8px'>
+        <div id='msg'>a</div>
+        <img id='img' style='width:100%' />
+      </section>
+    </ons-page>
+  </ons-template>
+
+  <ons-action-sheet id='battlefieldOption' cancelable title='Battle Field'>
+    <!-- <ons-action-sheet-button icon="md-square-o" onclick='battlefieldOption.hide(); openList()'>open List</ons-action-sheet-button> -->
+    <ons-action-sheet-button icon='md-square-o' onclick='battlefieldOption.hide(); damageOption.show();'>Damage</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-square-o" onclick='field2away("deck_player"); battlefieldOption.hide();'>to Deck</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-square-o" onclick='field2away("hand_player"); battlefieldOption.hide();'>to Hand</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-square-o" onclick='field2away("discardpile_player"); battlefieldOption.hide();'>to Discard Pile</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-square-o" onclick='filed2away("lostzone_player"); battlefieldOption.hide();'>to Lost Zone</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-close" onclick='battlefieldOption.hide()'>Cancel</ons-action-sheet-button>
+  </ons-action-sheet>
+
+  <ons-action-sheet id='damageOption' cancelable title='Damage'>
+    <ons-action-sheet-button icon='md-square-o' onclick="damage(10)">suffer 10</ons-action-sheet-button>
+    <ons-action-sheet-button icon='md-square-o' onclick='damage(50)'>suffer 50</ons-action-sheet-button>
+    <!-- <ons-action-sheet-button icon='md-square-o' onclick='damage(100)'>suffer 100</ons-action-sheet-button> -->
+    <ons-action-sheet-button icon='md-square-o' onclick='damage(-10)'>recover 10</ons-action-sheet-button>
+    <!-- <ons-action-sheet-button icon='md-square-o' onclick='damage(-50)'>recover 50</ons-action-sheet-button> -->
+    <ons-action-sheet-button icon='md-square-o' onclick='damage(-9999)'>recover all</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-close" onclick="damageOption.hide()">Cancel</ons-action-sheet-button>
+  </ons-action-sheet>
+
+  <!-- <ons-action-sheet id="stadiumOption" cancelable title="Stadium">
+    <ons-action-sheet-button icon="md-square-o" onclick='stadiumOption.hide(); openList()'>open List</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-close" onclick='stadiumOption.hide()'>Cancel</ons-action-sheet-button>
+  </ons-action-sheet> -->
+
+  <ons-action-sheet id="benchOption" cancelable title="Bench">
+    <!-- <ons-action-sheet-button icon="md-square-o" onclick='benchOption.hide(); openList()'>open List</ons-action-sheet-button> -->
+    <ons-action-sheet-button icon='md-square-o' onclick='benchOption.hide(); damageOption.show();'>Damage</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-square-o" onclick='field2Battlefield(); benchOption.hide()'>to Battle Field</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-square-o" onclick='benchOption.hide(); benchSubOption.show();'>to Else</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-close" onclick='benchOption.hide()'>Cancel</ons-action-sheet-button>
+  </ons-action-sheet>
+
+  <ons-action-sheet id="benchSubOption" cancelable title="Bench">
+    <ons-action-sheet-button icon="md-square-o" onclick='field2away("deck_player"); benchSubOption.hide();'>to Deck</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-square-o" onclick='field2away("hand_player"); benchSubOption.hide();'>to Hand</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-square-o" onclick='field2away("discardpile_player"); benchSubOption.hide();'>to Discard Pile</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-square-o" onclick='field2away("lostzone_player"); benchSubOption.hide();'>to Lost Zone</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-close" onclick='benchSubOption.hide()'>Cancel</ons-action-sheet-button>
+  </ons-action-sheet>
+
+  <ons-action-sheet id="deckOption" cancelable title="Deck">
+    <ons-action-sheet-button icon="md-square-o" onclick='deckOption.hide(); reset()'>All Reset</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-square-o" onclick='deckOption.hide(); openList()'>open List</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-square-o" onclick='shuffle()'>Shuffle</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-square-o" onclick='handShuffle();'>Hand Shuffle</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-square-o" onclick='draw(1)'>draw 1</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-square-o" onclick='draw(1,"deck_player","prize_player")'>prize add 1</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-close" onclick='deckOption.hide()'>Cancel</ons-action-sheet-button>
+  </ons-action-sheet>
+
+  <!-- <ons-action-sheet id="handOption" cancelable title="Hand">
+    <ons-action-sheet-button icon="md-square-o" onclick='handOption.hide(); openList()'>open List</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-square-o" onclick='handOption.hide(); handShuffle();'>Shuffle</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-close" onclick='handOption.hide()'>Cancel</ons-action-sheet-button>
+  </ons-action-sheet> -->
+
+  <!-- <ons-action-sheet id="discardpileOption" cancelable title="Discard Pile">
+    <ons-action-sheet-button icon="md-square-o" onclick='discardpileOption.hide(); openList()'>open List</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-close" onclick='discardpileOption.hide()'>Cancel</ons-action-sheet-button>
+  </ons-action-sheet> -->
+
+  <!-- <ons-action-sheet id="lostzoneOption" cancelable title="Lost Zone">
+    <ons-action-sheet-button icon="md-square-o" onclick='lostzoneOption.hide(); openList()'>open List</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-close" onclick='lostzoneOption.hide()'>Cancel</ons-action-sheet-button>
+  </ons-action-sheet> -->
+
+  <ons-action-sheet id="prizeOption" cancelable title="Prize">
+    <ons-action-sheet-button icon="md-square-o" onclick='prizeOption.hide(); openList()'>open List</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-square-o" onclick='draw(1,"prize_player")'>draw 1</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-close" onclick='prizeOption.hide()'>Cancel</ons-action-sheet-button>
+  </ons-action-sheet>
+
+  <ons-action-sheet id='listOption' cancelable title='List'>
+    <ons-action-sheet-button icon="md-square-o" onclick='toAway("deck_player"); listOption.hide();'>to Deck</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-square-o" onclick='toAway("hand_player"); listOption.hide();'>to Hand</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-square-o" onclick='toAway("discardpile_player"); listOption.hide();'>to Discard Pile</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-square-o" onclick='toAway("lostzone_player"); listOption.hide();'>to Lost Zone</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-square-o" onclick='listOption.hide(); tofieldOption.show()'>to Field</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-close" onclick='listOption.hide()'>Cancel</ons-action-sheet-button>
+  </ons-action-sheet>
+
+  <ons-action-sheet id='tofieldOption' cancelable title='toField'>
+    <ons-action-sheet-button icon='md-square-o' onclick="tofieldOption.hide(); toField('stadium_player',2);">Stadium</ons-action-sheet-button>
+    <ons-action-sheet-button icon='md-square-o' onclick="tofieldOption.hide(); tofieldOption_pokemon.show()">Pokemon</ons-action-sheet-button>
+    <ons-action-sheet-button icon='md-square-o' onclick="tofieldOption.hide(); tofieldOption_other.show();">Others</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-close" onclick='tofieldOption.hide()'>Cancel</ons-action-sheet-button>
+  </ons-action-sheet>
+
+  <ons-action-sheet id='tofieldOption_pokemon' cancelable title='Pokemon or Stadium'>
+    <!-- <ons-action-sheet-button icon='md-square-o' onclick="tofieldOption_pokemon.hide(); toField('stadium_player',2);">to Stadium</ons-action-sheet-button> -->
+    <ons-action-sheet-button icon='md-square-o' onclick="tofieldOption_pokemon.hide(); toField('battlefield_player',1);">to Battle Field</ons-action-sheet-button>
+    <ons-action-sheet-button icon='md-square-o' onclick="tofieldOption_pokemon.hide(); toField('bench1_player',1);">to Bench 1</ons-action-sheet-button>
+    <ons-action-sheet-button icon='md-square-o' onclick="tofieldOption_pokemon.hide(); toField('bench2_player',1);">to Bench 2</ons-action-sheet-button>
+    <ons-action-sheet-button icon='md-square-o' onclick="tofieldOption_pokemon.hide(); toField('bench3_player',1);">to Bench 3</ons-action-sheet-button>
+    <ons-action-sheet-button icon='md-square-o' onclick="tofieldOption_pokemon.hide(); toField('bench4_player',1);">to Bench 4</ons-action-sheet-button>
+    <ons-action-sheet-button icon='md-square-o' onclick="tofieldOption_pokemon.hide(); toField('bench5_player',1);">to Bench 5</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-close" onclick='tofieldOption_pokemon.hide()'>Cancel</ons-action-sheet-button>
+  </ons-action-sheet>
+
+  <ons-action-sheet id='tofieldOption_other' cancelable title='Others'>
+    <ons-action-sheet-button icon='md-square-o' onclick="toField('battlefield_player'); tofieldOption_other.hide();">to Battle Field</ons-action-sheet-button>
+    <ons-action-sheet-button icon='md-square-o' onclick="toField('bench1_player'); tofieldOption_other.hide();">to Bench 1</ons-action-sheet-button>
+    <ons-action-sheet-button icon='md-square-o' onclick="toField('bench2_player'); tofieldOption_other.hide();">to Bench 2</ons-action-sheet-button>
+    <ons-action-sheet-button icon='md-square-o' onclick="toField('bench3_player'); tofieldOption_other.hide();">to Bench 3</ons-action-sheet-button>
+    <ons-action-sheet-button icon='md-square-o' onclick="toField('bench4_player'); tofieldOption_other.hide();">to Bench 4</ons-action-sheet-button>
+    <ons-action-sheet-button icon='md-square-o' onclick="toField('bench5_player'); tofieldOption_other.hide();">to Bench 5</ons-action-sheet-button>
+    <ons-action-sheet-button icon="md-close" onclick='tofieldOption_other.hide()'>Cancel</ons-action-sheet-button>
+  </ons-action-sheet>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>

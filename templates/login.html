@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% block content %}
+{% if session.user_id %}
+<ul>
+  <li><a href="{{ url_for('protected') }}">Let's Solitaire</a></li>
+  <li><a href="{{url_for('scraping')}}"/>Add Deck</li>
+</ul>
+{% else %}
+<form action='login' method='POST'>
+  <ul>
+    <li>
+      <label for='user_id'>User ID</label>
+      <input type='text' name='user_id' id='user_id'/>
+    </li>
+    <li>
+      <label for='password'>Password</label>
+      <input type='password' name='password' id='password'/>
+    </li>
+    <li><input type='submit' name='submit'/></li>
+  </ul>
+</form>
+{% endif %}
+{% endblock %}

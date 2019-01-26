@@ -1,0 +1,15 @@
+.field{
+  width:64px; height:96px;
+  background-size:64px 96px;
+  display:flex; align-items:center; justify-content: center;
+  color: white; font-size:2vw; line-height:1.5;
+  text-shadow: 0.5px 0.5px 0 black, -0.5px -0.5px 0 black, 0.5px -0.5px 0 black, -0.5px 0.5px 0 black;
+}
+
+.fullcenter{
+  width:100%; text-align:center;
+}
+
+.fullright{
+  width:100%; text-align:right;
+}
