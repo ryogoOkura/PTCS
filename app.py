@@ -100,8 +100,8 @@ def scraping():
             src='https://www.pokemon-card.com'+trs[0].td.a.img.get('src')
             copy=trs[1].td.span.string
             data_list.append([name,copy,src])
-        jsonstring=json.dumps(data_list,ensure_ascii=False,indent=2)
         return render_template('scraping.html',data_list=data_list)
+        # jsonstring=json.dumps(data_list,ensure_ascii=False,indent=2)
         # return jsonstring
     else:
         return render_template('scraping.html')

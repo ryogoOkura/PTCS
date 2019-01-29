@@ -102,22 +102,26 @@ const findData=(deckNum=0)=>{
     getReqByName.onsuccess=event=>{
       val=getReqByName.result;
       if(val){
-        res.innerHTML="<ons-row><ons-col width='70%'>name</ons-col><ons-col><div style='text-align:center'>copy</div></ons-col><ons-col width='20%'></ons-col></ons-row>";
-        let nowtext;
+        res.innerHTML="<ons-row><ons-col width='70%'>name</ons-col><ons-col><div style='text-align:center'>copy</div></ons-col></ons-row>";
+        let nowtext,cnt=0;
         for(let i=0,imax=val.data.length; i<imax; i++){
           nowtext=res.innerHTML;
           res.innerHTML=nowtext+"<ons-row><ons-col width='70%'>"
           +"<a href='javascript:void(0)'  onclick='openImg("+val.data[i].src+',"img"'+")'>"
           +val.data[i].name+"</a></ons-col>"
           +"<ons-col><div style='text-align:center'>"+val.data[i].copy+"</div></ons-col>"
-          +"<ons-col width='20%'></ons-col></ons-row>";
+          +"</ons-row>";
+          cnt+=val.data[i].copy;
         }
+        nowtext=res.innerHTML;
+        res.innerHTML=nowtext+"<ons-row><ons-col>合計</ons-col><ons-col><div style='text-align:center'>"+cnt+"</div></ons-col><ons-col></ons-col></ons-row>";
         document.getElementById('deckname').value='';
       }else{
         res.innerHTML='not found...';
       }
       let div=document.getElementById('msg');
-      div.innerHTML='<p><b>FIND DATA</b></p>';
+      div.innerHTML='<p>'+val.id+':<b>'+val.name+'</b><br/>'
+                    +'<a href="javascript:void(0)" onclick="editData('+val.id+')">Edit</a></p>';
       div.appendChild(res);
     };
     getReqByName.onerror=event=>alert('ERROR: '+event);
@@ -128,7 +132,7 @@ const findData=(deckNum=0)=>{
       val=getReqById.result;
       if(val){
         res.innerHTML="<ons-row><ons-col>name</ons-col><ons-col><div style='text-align:center'>copy</div></ons-col></ons-row>";
-        let nowtext;
+        let nowtext,cnt=0;
         for(let i=0,imax=val.data.length; i<imax; i++){
           nowtext=res.innerHTML;
           res.innerHTML=nowtext+"<ons-row><ons-col>"
@@ -136,19 +140,101 @@ const findData=(deckNum=0)=>{
           +val.data[i].name+"</a></ons-col>"
           +"<ons-col><div style='text-align:center'>"+val.data[i].copy+"</div></ons-col>"
           +"</ons-row>";
+          cnt+=val.data[i].copy;
         }
+        res.innerHTML=nowtext+"<ons-row><ons-col>合計</ons-col><ons-col><div style='text-align:center'>"+cnt+"</div></ons-col></ons-row>";
         document.getElementById('decknum').value='';
       }else{
         res.innerHTML='not found...';
       }
       let div=document.getElementById('msg');
-      div.innerHTML='<p>'+val.id+':<b>'+val.name+'</b></p>';
+      div.innerHTML='<p>'+val.id+':<b>'+val.name+'</b><br/>'
+                    +'<a href="javascript:void(0)" onclick="editData('+val.id+')">Edit</a></p>';
       div.appendChild(res);
     };
     getReqById.onerror=event=>alert('ERROR: '+event);
   }
 };
 
+const editData=(deckNum=0)=>{
+  if(!db) return;
+  if(deckNum==0) deckNum=document.getElementById('decknum').value;
+  deckNum=deckNum*1;
+  let transaction=db.transaction([DBName],'readonly');
+  let store=transaction.objectStore(DBName);
+  let val, res=document.createElement('p');
+  if(deckNum){
+    let getReqById=store.get(deckNum);
+    getReqById.onsuccess=event=>{
+      val=getReqById.result;
+      if(val){
+        res.innerHTML="<ons-row><ons-col>name</ons-col><ons-col><div style='text-align:center'>copy</div></ons-col>"+"<ons-col></ons-col><ons-col></ons-col></ons-row>";
+        let nowtext,cnt=0;
+        for(let i=0,imax=val.data.length; i<imax; i++){
+          nowtext=res.innerHTML;
+          res.innerHTML=nowtext+"<ons-row><ons-col>"
+          +"<a href='javascript:void(0)'  onclick='openImg("+val.data[i].src+',"img"'+")'>"
+          +val.data[i].name+"</a></ons-col>"
+          +"<ons-col><div style='text-align:center'>"+val.data[i].copy+"</div></ons-col>"
+          +"<ons-col><a href='javascript:void(0)' onclick='fix("+deckNum+","+i+",1)'>↑</a></ons-col>"
+          +"<ons-col><a href='javascript:void(0)' onclick='fix("+deckNum+","+i+",-1)'>↓</a></ons-col>"
+          +"</ons-row>";
+          cnt+=val.data[i].copy;
+        }
+        res.innerHTML=nowtext+"<ons-row><ons-col>合計</ons-col><ons-col><div style='text-align:center'>"+cnt+"</div></ons-col>"+"<ons-col></ons-col><ons-col></ons-col></ons-row>";
+        document.getElementById('decknum').value='';
+      }else{
+        res.innerHTML='not found...';
+      }
+      let div=document.getElementById('msg');
+      div.innerHTML='<p>'+val.id+':<b>'+val.name+'</b><br/>'
+                    +"<a href='javascript:void(0)' onclick='findData("+val.id+")'>OK</a></p>";
+      div.appendChild(res);
+    };
+    getReqById.onerror=event=>alert('ERROR: '+event);
+  }
+};
+
+const fix=(deckNum,num,x)=>{
+  if(!db) return;
+  let transaction=db.transaction([DBName],'readwrite');
+  let store=transaction.objectStore(DBName);
+  let val, res=document.createElement('p');
+  let getReqById=store.get(deckNum);
+  getReqById.onsuccess=event=>{
+    val=getReqById.result;
+    if(val){
+      val.data[num].copy+=x;
+      if(val.data[num].copy<0) val.data[num].copy=0;
+      let updateReq=store.put(val);
+      updateReq.onerror=event=>alert('ERROR: '+event);
+      // alert(val.data[num].copy);
+      res.innerHTML="<ons-row><ons-col>name</ons-col><ons-col><div style='text-align:center'>copy</div></ons-col>"+"<ons-col></ons-col><ons-col></ons-col></ons-row>";
+      let nowtext,cnt=0;
+      for(let i=0,imax=val.data.length; i<imax; i++){
+        nowtext=res.innerHTML;
+        res.innerHTML=nowtext+"<ons-row><ons-col>"
+        +"<a href='javascript:void(0)'  onclick='openImg("+val.data[i].src+',"img"'+")'>"
+        +val.data[i].name+"</a></ons-col>"
+        +"<ons-col><div style='text-align:center'>"+val.data[i].copy+"</div></ons-col>"
+        +"<ons-col><a href='javascript:void(0)' onclick='fix("+deckNum+","+i+",1)'>↑</a></ons-col>"
+        +"<ons-col><a href='javascript:void(0)' onclick='fix("+deckNum+","+i+",-1)'>↓</a></ons-col>"
+        +"</ons-row>";
+        cnt+=val.data[i].copy;
+      }
+      res.innerHTML=nowtext+"<ons-row><ons-col>合計</ons-col><ons-col><div style='text-align:center'>"+cnt+"</div></ons-col>"+"<ons-col></ons-col><ons-col></ons-col></ons-row>";
+      document.getElementById('decknum').value='';
+    }else{
+      res.innerHTML='not found...';
+    }
+    let div=document.getElementById('msg');
+    div.innerHTML='<p>'+val.id+':<b>'+val.name+'</b><br/>'
+                  +"<a href='javascript:void(0)' onclick='findData("+val.id+")'>OK</a></p>";
+    div.appendChild(res);
+  };
+  getReqById.onerror=event=>alert('ERROR: '+event);
+
+}
 const deleteData=()=>{
   if(!db) return;
   const deckNum=document.getElementById('decknum').value*1;

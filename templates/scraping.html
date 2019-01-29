@@ -67,33 +67,41 @@
     initialDB();
   };
 </script>
-<div class="form">
-  <div class="container">
-    <div class="row">
-      <div class="col-md-12">
-        <p class="lead">
-          デッキIDを入力してください<br/>
-          <form action="/scraping" method="post" class="form-inline">
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <p>
+      <div class="form">
+        デッキIDを入力してください<br/>
+        <form action="/scraping" method="post" class="form-inline">
+          <div class='form-group'>
             <label for="deckID">デッキID</label>
-            <input type="text" class="form-control" id="deckID" name="deckID" placeholder="ID">
-            <button type="submit" class="btn btn-default">検索する</button>
-          </form>
-        </p>
-        <div id='msg'>ここにデッキリストが出る</div>
-        {% if data_list %}
-        <p class="lead">
-          デッキ名を入力してください<br/>
-          <label for='deckname'>デッキ名</label>
-          <input type='text' class='form-control' id='deckname'/>
+            <input type="text" class="form-control" name="deckID" id="deckID" placeholder="ID">
+          </div>
+          <button type="submit" class="btn btn-default">検索する</button>
+        </form>
+        </div>
+      </p>
+      <p>
+      <div id='msg'>ここにデッキリストが出る</div>
+      </p>
+      {% if data_list %}
+      <p>
+        デッキ名を入力してください<br/>
+        <form class="form-inline">
+          <div class='form-group'>
+            <label for='deckname'>デッキ名</label>
+            <input type='text' class='form-control' id='deckname'/>
+          </div>
           <button type='button' onclick='addData()' class="btn btn-default">登録する</button>
-        </p>
-        <p><div id='deck'>
-        {% for data in data_list %}
-        <ons-row><ons-col width='20%' class='name'>{{data[0]}}</ons-col><ons-col width='5%' class='copy'>{{data[1]}}</ons-col><ons-col class='src'>{{data[2]}}</ons-col></ons-row>
-        {% endfor %}
-        </div></p>
-        {% endif %}
-      </div>
+        </form>
+      </p>
+      <p><div id='deck'>
+      {% for data in data_list %}
+      <ons-row><ons-col width='20%' class='name'>{{data[0]}}</ons-col><ons-col width='5%' class='copy'>{{data[1]}}</ons-col><ons-col class='src'>{{data[2]}}</ons-col></ons-row>
+      {% endfor %}
+      </div></p>
+      {% endif %}
     </div>
   </div>
 </div>
