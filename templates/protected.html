@@ -80,6 +80,7 @@
       <ons-toolbar>
         <div class='left'><a href="{{url_for('logout')}}">logout</a></div>
         <div class='center'>Player 1</div>
+        <div class='right'><a href='javascript:void(0)' onclick='coinToss()'>CoinToss</a></div>
       </ons-toolbar>
       <section style='padding:8px' id='field'>
         <ons-row>
@@ -130,7 +131,11 @@
 
   <ons-template id='player2.html'>
     <ons-page id='player2_home'>
-      <ons-toolbar><div class='center'>Player 2</div></ons-toolbar>
+      <ons-toolbar>
+        <div class='left'><a href="{{url_for('login')}}">menu</a></div>
+        <div class='center'>Player 2</div>
+        <div class='right'><a href='javascript:void(0)' onclick='coinToss()'>CoinToss</a></div>
+      </ons-toolbar>
       <section style='padding:8px' id='field'>
         <ons-row>
           <ons-col width='20%'><ons-button id='stadium_player2' modifier='light' class='field'></ons-button></ons-col>

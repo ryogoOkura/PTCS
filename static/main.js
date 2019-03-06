@@ -4,6 +4,18 @@ let selected=null;//in openList number of selected listItem
 let cardData={"stadium_player1":[], "battlefield_player1":[], "bench1_player1":[], "bench2_player1":[], "bench3_player1":[], "bench4_player1":[], "bench5_player1":[], "deck_player1":[], "hand_player1":[], "prize_player1":[], "discardpile_player1":[], "lostzone_player1":[], "stadium_player2":[], "battlefield_player2":[], "bench1_player2":[], "bench2_player2":[], "bench3_player2":[], "bench4_player2":[], "bench5_player2":[], "deck_player2":[], "hand_player2":[], "prize_player2":[], "discardpile_player2":[], "lostzone_player2":[]};
 let newDeckData=null;
 
+const coinToss=()=>{
+  let coin=Math.random();
+  if(coin>=0.5) coin='heads';
+  else coin='tails';
+  ons.notification.alert({
+    title:'Coin Toss',
+    messageHTML:coin,
+    buttonLabel:'OK',
+    animation:'default'
+  });
+}
+
 const reset=()=>{
   let n,text,size,nexttext;
   for(name in cardData){
@@ -18,9 +30,12 @@ const reset=()=>{
       nexttext=text.replace(new RegExp(size[1]),0);
       document.getElementById(name).innerHTML=nexttext;
     }
+    document.getElementById(name).style.backgroundImage=null;
   }
   document.getElementById("deck_player1").innerHTML='Deck 60';
   document.getElementById("deck_player2").innerHTML='Deck 60';
+  document.getElementById("img_player1").style.display="none";
+  document.getElementById("img_player2").style.display="none";
 }
 
 const openList=(button=nowButton, flag=1)=>{
