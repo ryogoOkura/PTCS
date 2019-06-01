@@ -1,12 +1,13 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 import flask_login
+import os
 
 app=Flask(__name__)
 
 app.secret_key=b'\xf6]\x94n\x7f\xd8L\x06ZB\xd9A\x0f\xc6+<'
 login_manager=flask_login.LoginManager()
 login_manager.init_app(app)
-users={'foobar':{'password':'secret'}}
+users={'foobar':{'password':os.environ['PASSWORD']}}
 class User(flask_login.UserMixin):
     pass
 
